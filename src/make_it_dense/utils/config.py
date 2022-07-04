@@ -15,6 +15,7 @@ class KITTIConfig:
     lidar_width: int = 1024
     up_fov: int = 3
     down_fov: int = -24
+    scale_down_factor: int = 4
     train_sequences: list = field(
         default_factory=lambda: ["00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"]
     )

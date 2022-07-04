@@ -10,6 +10,7 @@ data:
   lidar_width: 2048
   up_fov: 3
   down_fov: -24
+  scale_down_factor: 4 # 64 -> 16 beams
   train_sequences: ["07"]
   eval_sequences: ["00"]
 

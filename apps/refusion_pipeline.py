@@ -165,7 +165,6 @@ class ReFusionPipeline:
         os.system(f"cat {filename}")
 
 
-# TODO: WORK IN PROGRESS
 def main(
     checkpoint: Path = typer.Option(Path("models/make_it_dense.ckpt"), exists=True),
     config_file: Path = typer.Option(Path("config/kitti.yaml"), exists=True),

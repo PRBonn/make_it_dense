@@ -51,16 +51,58 @@ class KITTIOdometrySequence:
         points = self.transform_points(points, self.poses[idx])
         return points
 
-    @staticmethod
-    def downsample_scan(points):
-        # TODO: Implement
-        #  vertex_map = np.moveaxis(vertex_map, 0, -1) if vertex_map.shape[0] == 3 else vertex_map
-        #  vertex_map = vertex_map[::scale_down_factor]
+    def downsample_scan(self, points):
+        """Adapted from RangeNet"""
+        W = self.config.data.lidar_width
+        H = self.config.data.lidar_height
+        fov_up = np.deg2rad(self.config.data.up_fov)
+        fov_down = np.deg2rad(self.config.data.down_fov)
+        fov = abs(fov_down) + abs(fov_up)  # get field of view total in radians
 
-        #  H = vertex_map.shape[0]
-        #  W = vertex_map.shape[1]
-        #  points = vertex_map.reshape(H * W, 3)
-        return points
+        # get depth of all points
+        depth = np.linalg.norm(points, axis=1)
+
+        # get scan components
+        scan_x = points[:, 0]
+        scan_y = points[:, 1]
+        scan_z = points[:, 2]
+
+        # get angles of all points
+        yaw = -np.arctan2(scan_y, scan_x)
+        pitch = np.arcsin(scan_z / depth)
+
+        # get projections in image coords
+        proj_x = 0.5 * (yaw / np.pi + 1.0)  # in [0.0, 1.0]
+        proj_y = 1.0 - (pitch + abs(fov_down)) / fov  # in [0.0, 1.0]
+
+        # scale to image size using angular resolution
+        proj_x *= W  # in [0.0, W]
+        proj_y *= H  # in [0.0, H]
+
+        # round and clamp for use as index
+        proj_x = np.floor(proj_x)
+        proj_x = np.minimum(W - 1, proj_x)
+        proj_x = np.maximum(0, proj_x).astype(np.int32)
+
+        proj_y = np.floor(proj_y)
+        proj_y = np.minimum(H - 1, proj_y)
+        proj_y = np.maximum(0, proj_y).astype(np.int32)
+
+        # order in decreasing depth
+        order = np.argsort(depth)[::-1]
+        depth = depth[order]
+        proj_y = proj_y[order]
+        proj_x = proj_x[order]
+
+        scan_x = scan_x[order]
+        scan_y = scan_y[order]
+        scan_z = scan_z[order]
+
+        vertex_map = np.full((H, W, 3), -1, dtype=np.float32)
+        vertex_map[proj_y, proj_x] = np.array([scan_x, scan_y, scan_z]).T
+        vertex_map = vertex_map[:: self.config.data.scale_down_factor]
+        points_ds = vertex_map.reshape(int(H * W / self.config.data.scale_down_factor), 3)
+        return points_ds
 
     def load_poses(self, poses_file):
         def _lidar_pose_gt(poses_gt):
