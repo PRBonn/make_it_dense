@@ -1,0 +1,75 @@
+settings:
+  gpu: true
+  num_workers: 8
+  sharing_strategy: "file_system"
+
+data:
+  # kitti_root_dir: "data/kitti-odometry/static-gt-labels/" # TOOD: Add support for this
+  kitti_root_dir: "data/kitti-odometry/dataset"
+  lidar_height: 64
+  lidar_width: 2048
+  up_fov: 3
+  down_fov: -24
+  train_sequences: ["07"]
+  eval_sequences: ["00"]
+
+fusion:
+  voxel_sizes: [40, 20, 10] # cm
+  voxel_trunc: 3 # voxels == sdf_trunc
+  acc_scans: 25
+  scale_down_factor: 4 # 64 -> 16 beams
+  min_weight: 5.0 # threshold used fro TSDF pruning
+
+model:
+  occ_th: [0.99, 0.99, 0.99]
+  f_maps: [4, 16, 32, 64]
+  layers_down: [1, 2, 3, 4]
+  layers_up: [3, 2, 1]
+
+cache:
+  use_cache: True
+  cache_dir: "data/cache/kitti-odometry"
+  size_limit: 400 # [GiB]
+
+loss:
+  mask_plane_loss: True
+  mask_l1_loss: True
+  use_log_transform: True
+  mask_occ_weight: 0.9
+
+optimization:
+  lr: 10.e-03
+  weight_decay: 1.e-3
+  div_factor: 10000
+
+training:
+  n_epochs: 329
+  effective_batch_size: 400
+  train_batch_size: 6
+  train_shuffle: true
+  val_batch_size: 6
+  val_shuffle: false
+
+logging:
+  save_dir: logs/
+  name: kitti
+  weights_summary: full
+  log_every_n_steps: 1
+  log_graph: true
+  lr_monitor_step: step
+
+checkpoints:
+  dirpath: checkpoints/
+  monitor: train/train_loss
+  save_top_k: -1
+  mode: min
+
+refusion:
+  voxel_size: 0.1
+  vox_trunc: 3
+  space_carving: False
+  out_dir: "results/"
+  fill_holes: False
+  min_weight: 10.0
+  cuda: True
+  eta: 0.7
