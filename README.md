@@ -5,7 +5,7 @@ This repository contains the implementation of the following publication:
 
 ```bibtex
 @article{vizzo2022ral,
-  author  = {I. Vizzo and B. Mersch and R. Marcuzzi and L. Wiesmann and and J. Behley and C. Stachniss},
+  author  = {I. Vizzo and B. Mersch and R. Marcuzzi and L. Wiesmann and J. Behley and C. Stachniss},
   title   = {{Make it Dense: Self-Supervised Geometric Scan Completion of Sparse 3D LiDAR Scans in Large Outdoor Environments}},
   journal = {IEEE Robotics and Automation Letters (RA-L)},
   year    = 2022
