@@ -19,7 +19,7 @@ def read_point_cloud(filename):
     if ext == ".bin":
         scan = np.fromfile(filename, dtype=np.float32).reshape((-1, 4))[:, :3]
     else:
-        scan = o3d.io.read_point_cloud(filename).points
+        scan = o3d.io.read_point_cloud(str(filename)).points
     return np.asarray(scan, dtype=np.float64)
 
 
