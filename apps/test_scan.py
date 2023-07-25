@@ -28,8 +28,9 @@ def test(
     checkpoint: Path = typer.Option(Path("models/make_it_dense.ckpt"), exists=True),
     cuda: bool = typer.Option(False, "--cuda"),
 ):
-    config = MkdConfig.from_dict(torch.load(checkpoint)["hyper_parameters"])
-    model = CompletionNet.load_from_checkpoint(checkpoint_path=str(checkpoint), config=config)
+    device = torch.device('cuda') if cuda else torch.device('cpu')
+    config = MkdConfig.from_dict(torch.load(checkpoint, map_location=device)["hyper_parameters"])
+    model = CompletionNet.load_from_checkpoint(checkpoint_path=str(checkpoint), config=config, map_location=device)
     model.eval()
 
     # Run make-it-dense pipeline
