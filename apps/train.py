@@ -10,6 +10,9 @@ from make_it_dense.models import CompletionNet
 from make_it_dense.utils import load_config
 
 
+if __name__ == "__main__":
+    typer.run(train)
+    
 def train(
     config_file: Path = typer.Option(Path("config/kitti.yaml"), "--config", "-c", exists=True),
     overfit_batches: int = 0,
@@ -39,17 +42,18 @@ def train(
 
     trainer = pl.Trainer(
         default_root_dir="../",
-        gpus=1 if config.settings.gpu else 0,
+        accelerator="gpu",
+        devices=-1,
         max_epochs=config.training.n_epochs,
         overfit_batches=overfit_batches,
         logger=tb_logger,
         log_every_n_steps=config.logging.log_every_n_steps,
-        weights_summary=config.logging.weights_summary,
+        enable_model_summary=True,
         callbacks=[checkpoint_callback, lr_monitor_callback],
-        auto_scale_batch_size="power",
     )
     trainer.fit(model, data)
 
 
 if __name__ == "__main__":
     typer.run(train)
+
