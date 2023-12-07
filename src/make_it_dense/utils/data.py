@@ -45,7 +45,7 @@ def collate_models(batch: Tuple[torch.Tensor], batch_size: int = -1) -> Tuple[to
 
     # Hack: select random indices, please fix this SHIT!
     n_volumes = targets["gt_tsdf_10"]["nodes"].shape[0]
-    random_indices = random.sample(torch.arange(n_volumes).tolist(), batch_size)
+    random_indices = random.choices(torch.arange(n_volumes).tolist(), k=batch_size)
     for key in targets.keys():
         targets[key]["nodes"] = targets[key]["nodes"][random_indices]
         targets[key]["origin"] = targets[key]["origin"][random_indices]
